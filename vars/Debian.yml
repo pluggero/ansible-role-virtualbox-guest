@@ -1,0 +1,12 @@
+---
+virtualbox_guest_dep_pkgs:
+  - linux-image-amd64
+  - build-essential
+  - dkms
+  - linux-headers-generic
+
+virtualbox_guest_utils:
+  - virtualbox-guest-utils
+  - virtualbox-guest-utils-nox
+
+virtualbox_guest_installer: "VBoxLinuxAdditions.run"

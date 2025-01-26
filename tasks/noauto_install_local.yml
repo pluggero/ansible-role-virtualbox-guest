@@ -1,0 +1,92 @@
+---
+- name: Check if virtualbox guest additions version on CD-ROM is in the target version
+  block:
+    - name: Mount local CD-ROM
+      ansible.builtin.mount:
+        path: "{{ virtualbox_guest_mount_path }}"
+        src: "{{ virtualbox_guest_local_mount_src }}"
+        fstype: iso9660
+        opts: ro,noauto
+        state: mounted
+      become: true
+      changed_when: false
+
+    - name: Get version of guest additions on local CD-ROM
+      ansible.builtin.command:
+        cmd: 'grep --text -e "^INSTALLATION_VER" {{ virtualbox_guest_mount_path }}/VBoxLinuxAdditions.run'
+      register: virtualbox_guest_additions_cd
+      changed_when: false
+
+    - name: Extract only the version into a variable
+      ansible.builtin.set_fact:
+        virtualbox_guest_additions_cdrom_version: "{{ virtualbox_guest_additions_cd.stdout | regex_search('[0-9.]+') }}"
+
+    - name: Debug virtualbox guest additions version on CD-ROM
+      ansible.builtin.debug:
+        msg:
+          - "CD-ROM version: {{ virtualbox_guest_additions_cdrom_version }}"
+          - "Installed version: {{ virtualbox_guest_additions_installed_version }}"
+
+    - name: Unmount local CD-ROM
+      ansible.builtin.mount:
+        path: "{{ virtualbox_guest_mount_path }}"
+        src: "{{ virtualbox_guest_local_mount_src }}"
+        fstype: iso9660
+        opts: ro,noauto
+        state: unmounted
+      become: true
+      changed_when: false
+
+    - name: Determine if virtualbox guest additions version on CD-ROM is in the target version
+      ansible.builtin.set_fact:
+        virtualbox_guest_additions_reinstall_local: true
+      when:
+        - virtualbox_guest_additions_cdrom_version is defined
+        - virtualbox_guest_additions_cdrom_version != virtualbox_version
+
+- name: Ensure virtualbox guest additions is installed via local
+  when: virtualbox_guest_additions_reinstall_local
+  block:
+    - name: Remove existing installation
+      ansible.builtin.include_tasks:
+        file: noauto_remove_existing_installation.yml
+
+    - name: Install OS-specific dependencies
+      ansible.builtin.include_tasks: "{{ var_file }}"
+      with_first_found:
+        - "noauto_install_dep_{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+        - "noauto_install_dep_{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+        - "noauto_install_dep_{{ ansible_distribution }}.yml"
+        - "noauto_install_dep_{{ ansible_os_family }}.yml"
+        - "noauto_install_dep_{{ ansible_lsb.id }}.yml"
+      loop_control:
+        loop_var: var_file
+
+    - name: Mount local CD-ROM
+      ansible.builtin.mount:
+        path: "{{ virtualbox_guest_mount_path }}"
+        src: "{{ virtualbox_guest_local_mount_src }}"
+        fstype: iso9660
+        opts: ro,noauto
+        state: mounted
+      become: true
+      changed_when: false
+
+    - name: Install new virtualbox Guest Additions version
+      ansible.builtin.command:
+        cmd: "{{ virtualbox_guest_installer_path }}"
+      become: true
+      changed_when: true
+      register: virtualbox_guest_additions_install_result
+      failed_when: virtualbox_guest_additions_install_result.rc not in [0, 2]
+      notify: Reboot system
+
+    - name: Unmount local CD-ROM
+      ansible.builtin.mount:
+        path: "{{ virtualbox_guest_mount_path }}"
+        src: "{{ virtualbox_guest_local_mount_src }}"
+        fstype: iso9660
+        opts: ro,noauto
+        state: unmounted
+      become: true
+      changed_when: false

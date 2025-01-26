@@ -1,0 +1,14 @@
+---
+- name: Ensure we are using apt
+  ansible.builtin.fail:
+    msg: "This role only supports {{ ansible_os_family }} systems that use apt as a package manager."
+  when: ansible_pkg_mgr != "apt"
+
+- name: Remove existing installation to ensure clean installation
+  when: ansible_pkg_mgr == "apt"
+  block:
+    - name: Remove existiing virtualbox guest utils
+      ansible.builtin.apt:
+        name: "{{ virtualbox_guest_utils }}"
+        state: absent
+      become: true

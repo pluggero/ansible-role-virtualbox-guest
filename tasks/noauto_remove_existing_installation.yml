@@ -1,0 +1,28 @@
+---
+- name: Uninstall existing virtualbox guest additions
+  when: virtualbox_guest_additions_installed_version != 'none'
+  block:
+    - name: Uninstall current virtualbox Guest Additions version
+      ansible.builtin.command:
+        cmd: "{{ virtualbox_guest_install_dir }}/VBoxGuestAdditions-{{ virtualbox_guest_additions_installed_version }}/uninstall.sh"
+      become: true
+      changed_when: true
+
+    - name: Reboot system
+      ansible.builtin.reboot:
+        msg: "Rebooting system for clean uninstallation"
+        connect_timeout: 5
+        reboot_timeout: 600
+      become: true
+
+# If virtualbox guest was installed headless, we need to remove the existing installation
+- name: Uninstall existing os packages of virtualbox guest additions
+  ansible.builtin.include_tasks: "{{ task_file }}"
+  with_first_found:
+    - "noauto_remove_existing_installation_{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "noauto_remove_existing_installation_{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+    - "noauto_remove_existing_installation_{{ ansible_distribution }}.yml"
+    - "noauto_remove_existing_installation_{{ ansible_os_family }}.yml"
+    - "noauto_remove_existing_installation_{{ ansible_lsb.id }}.yml"
+  loop_control:
+    loop_var: task_file
