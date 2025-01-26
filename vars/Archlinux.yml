@@ -1,8 +1,12 @@
 ---
 virtualbox_guest_dep_pkgs: []
 
-virtualbox_guest_utils:
+virtualbox_guest_pkgs:
+  - virtualbox-guest-additions-iso
+  - virtualbox-guest-dkms
+  - virtualbox-guest-source
   - virtualbox-guest-utils
   - virtualbox-guest-utils-nox
+  - virtualbox-guest-x11
 
 virtualbox_guest_installer: "VBoxLinuxAdditions.run"

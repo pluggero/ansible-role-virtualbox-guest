@@ -9,6 +9,6 @@
   block:
     - name: Remove existiing virtualbox guest utils
       community.general.pacman:
-        name: "{{ virtualbox_guest_utils }}"
+        name: "{{ virtualbox_guest_pkgs }}"
         state: absent
       become: true
