@@ -12,6 +12,13 @@ None.
 
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 
+```yaml
+virtualbox_guest_reboot: true
+```
+
+Defines if the system should be rebooted in the installation process of VirtualBox Guest Additions.
+This should be false if you install it in a special environment like with packer.
+
 ## Dependencies
 
 None.
