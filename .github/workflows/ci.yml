@@ -28,7 +28,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install test dependencies
-        run: pip3 install yamllint
+        run: pip3 install -r requirements.txt
 
       - name: Run yamllint
         run: |
@@ -50,7 +50,11 @@ jobs:
           - debian/bookworm64
           - archlinux/archlinux
     env:
-      VBOX_DEB_URL: "https://download.virtualbox.org/virtualbox/7.1.6/virtualbox-7.1_7.1.6-167084~Ubuntu~noble_amd64.deb"
+      VBOX_BRANCH: "7.1"
+      VBOX_VERSION: "7.1.8"
+      VBOX_BUILD_ID: "168469"
+      VBOX_DEB_DISTRO: "Ubuntu"
+      VBOX_DEB_CODENAME: "noble"
 
     steps:
       - name: Check out the codebase
@@ -64,8 +68,13 @@ jobs:
           python-version: "3.x"
 
       - name: Install test dependencies
-        # Pinned versions because of https://github.com/ansible-community/molecule-plugins/issues/301
-        run: pip3 install ansible molecule==25.1.0 molecule-plugins[vagrant]
+        run: pip3 install -r requirements.txt
+
+      - name: Construct VBOX_DEB_URL
+        run: |
+          export VBOX_DEB_FILE="virtualbox-${VBOX_BRANCH}_${VBOX_VERSION}-${VBOX_BUILD_ID}~${VBOX_DEB_DISTRO}~${VBOX_DEB_CODENAME}_amd64.deb"
+          export VBOX_DEB_URL="https://download.virtualbox.org/virtualbox/${VBOX_VERSION}/${VBOX_DEB_FILE}"
+          echo "VBOX_DEB_URL=$VBOX_DEB_URL" >> $GITHUB_ENV
 
       - name: Install VirtualBox
         run: |
