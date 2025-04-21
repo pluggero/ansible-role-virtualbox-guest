@@ -42,7 +42,7 @@
             virtualbox_guest_additions_reinstall: true
           when:
             - virtualbox_guest_additions_installed_version is defined
-            - virtualbox_guest_additions_installed_version != virtualbox_version
+            - virtualbox_guest_additions_installed_version != virtualbox_guest_virtualbox_version
 
     - name: Install virtualbox guest additions
       ansible.builtin.include_tasks:

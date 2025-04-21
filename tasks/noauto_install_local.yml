@@ -42,7 +42,7 @@
         virtualbox_guest_additions_reinstall_local: true
       when:
         - virtualbox_guest_additions_cdrom_version is defined
-        - virtualbox_guest_additions_cdrom_version != virtualbox_version
+        - virtualbox_guest_additions_cdrom_version != virtualbox_guest_virtualbox_version
 
 - name: Ensure virtualbox guest additions is installed via local
   when: virtualbox_guest_additions_reinstall_local
