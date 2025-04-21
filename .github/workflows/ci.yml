@@ -48,7 +48,7 @@ jobs:
       matrix:
         distro:
           - debian/bookworm64
-          - archlinux/archlinux
+          - terrywang/archlinux
     env:
       VBOX_BRANCH: "7.1"
       VBOX_VERSION: "7.1.8"
