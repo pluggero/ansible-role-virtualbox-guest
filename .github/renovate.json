@@ -1,10 +1,20 @@
 {
-  "extends": ["config:best-practices", ":disableRateLimiting"],
-  "enabledManagers": ["github-actions", "pip_requirements", "custom.regex"],
+  "extends": [
+    "config:best-practices",
+    ":disableRateLimiting"
+  ],
+  "enabledManagers": [
+    "github-actions",
+    "pip_requirements",
+    "custom.regex"
+  ],
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^defaults/main\\.yml$", "^.github/workflows/ci\\.yml$"],
+      "managerFilePatterns": [
+        "/^defaults/main\\.yml$/",
+        "/^.github/workflows/ci\\.yml$/"
+      ],
       "matchStrings": [
         "virtualbox_guest_virtualbox_version:\\s+\"(?<currentValue>[\\d\\.]+)\"",
         "VBOX_VERSION:\\s+\"(?<currentValue>[\\d\\.]+)\""
@@ -22,7 +32,9 @@
   },
   "packageRules": [
     {
-      "matchPackageNames": ["virtualbox"],
+      "matchPackageNames": [
+        "virtualbox"
+      ],
       "groupName": "Update Virtualbox version"
     }
   ]
