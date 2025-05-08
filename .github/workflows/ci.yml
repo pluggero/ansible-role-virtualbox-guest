@@ -46,9 +46,11 @@ jobs:
     needs: lint
     strategy:
       matrix:
-        distro:
-          - debian/bookworm64
-          - terrywang/archlinux
+        include:
+          - vagrant_box: pluggero/debian12-ansible
+            vagrant_box_version: "1.0.0"
+          - vagrant_box: pluggero/archlinux-ansible
+            vagrant_box_version: "1.0.0"
     env:
       VBOX_BRANCH: "7.1"
       VBOX_VERSION: "7.1.8"
@@ -110,4 +112,5 @@ jobs:
         env:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
-          MOLECULE_DISTRO: ${{ matrix.distro }}
+          MOLECULE_VAGRANT_BOX: ${{ matrix.vagrant_box }}
+          MOLECULE_VAGRANT_BOX_VERSION: ${{ matrix.vagrant_box_version }}

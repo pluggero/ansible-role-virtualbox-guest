@@ -22,7 +22,27 @@
       "datasourceTemplate": "custom.virtualbox",
       "depNameTemplate": "virtualbox",
       "versioningTemplate": "semver"
-    }
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^.github/workflows/ci\\.yml$"],
+      "matchStrings": [
+        "vagrant_box:\\s+pluggero/debian12-ansible\\s+vagrant_box_version:\\s+\"(?<currentValue>[\\d\\.]+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "pluggero/packer-debian12-ansible",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["^.github/workflows/ci\\.yml$"],
+      "matchStrings": [
+        "vagrant_box:\\s+pluggero/archlinux-ansible\\s+vagrant_box_version:\\s+\"(?<currentValue>[\\d\\.]+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "pluggero/packer-archlinux-ansible",
+      "versioningTemplate": "semver"
+    },
   ],
   "customDatasources": {
     "virtualbox": {

@@ -6,7 +6,8 @@ driver:
   name: vagrant
 platforms:
   - name: instance
-    box: "${MOLECULE_DISTRO:-debian/bookworm64}"
+    box: "${MOLECULE_VAGRANT_BOX:-debian/bookworm64}"
+    box_version: "${MOLECULE_VAGRANT_BOX_VERSION:-*}"
 provisioner:
   name: ansible
   playbooks:
