@@ -1,4 +1,4 @@
-yamllint==1.37.0
+yamllint==1.37.1
 ansible==11.5.0
 # Pinned molecule version to 25.1.0 because of https://github.com/ansible-community/molecule-plugins/issues/301
 molecule==25.1.0
