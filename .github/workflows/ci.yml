@@ -47,8 +47,8 @@ jobs:
     strategy:
       matrix:
         distro:
-          - debian/bookworm64
-          - terrywang/archlinux
+          - pluggero/debian12-ansible
+          - pluggero/archlinux-ansible
     env:
       VBOX_BRANCH: "7.1"
       VBOX_VERSION: "7.1.8"
