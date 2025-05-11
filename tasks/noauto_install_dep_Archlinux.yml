@@ -16,7 +16,7 @@
       community.general.pacman:
         name: "{{ package }}"
         state: present
-        loop: "{{ virtualbox_guest_dep_pkgs }}"
-        loop_control:
+      loop: "{{ virtualbox_guest_dep_pkgs }}"
+      loop_control:
         loop_var: package
       become: true
