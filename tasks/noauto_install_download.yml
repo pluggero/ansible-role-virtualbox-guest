@@ -53,7 +53,7 @@
         src: "{{ virtualbox_guest_local_mount_src }}"
         fstype: iso9660
         opts: ro,noauto
-        state: unmounted
+        state: absent
       become: true
       changed_when: false
 

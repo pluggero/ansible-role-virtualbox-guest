@@ -14,6 +14,9 @@
 
     - name: Ensure virtualbox guest additions dependencies are installed
       community.general.pacman:
-        name: "{{ virtualbox_guest_dep_pkgs }}"
+        name: "{{ package }}"
         state: present
+        loop: "{{ virtualbox_guest_dep_pkgs }}"
+        loop_control:
+        loop_var: package
       become: true

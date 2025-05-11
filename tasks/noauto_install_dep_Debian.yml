@@ -15,6 +15,9 @@
 
     - name: Ensure virtualbox guest additions dependencies are installed
       ansible.builtin.apt:
-        name: "{{ virtualbox_guest_dep_pkgs }}"
+        name: "{{ package }}"
         state: present
+        loop: "{{ virtualbox_guest_dep_pkgs }}"
+        loop_control:
+        loop_var: package
       become: true
