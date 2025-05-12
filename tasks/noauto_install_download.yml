@@ -28,6 +28,15 @@
         dest: "{{ virtualbox_guest_download_path }}"
         mode: "0644"
 
+    - name: Ensure mount folder exists
+      ansible.builtin.file:
+        path: "{{ virtualbox_guest_mount_path }}"
+        state: directory
+        mode: "0700"
+        owner: root
+        group: root
+      become: true
+
     - name: Mount local CD-ROM
       ansible.builtin.mount:
         path: "{{ virtualbox_guest_mount_path }}"
@@ -53,6 +62,12 @@
         fstype: iso9660
         opts: ro,loop
         state: unmounted
+      become: true
+
+    - name: Remove mount folder
+      ansible.builtin.file:
+        path: "{{ virtualbox_guest_mount_path }}"
+        state: absent
       become: true
 
     - name: Remove virtualbox guest additions iso
