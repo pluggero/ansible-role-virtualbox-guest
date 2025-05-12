@@ -37,15 +37,46 @@
       ansible.builtin.debug:
         var: virtualbox_guest_additions_installed_version
 
-    - name: Uninstall current virtualbox Guest Additions version
+    - name: Uninstall current VirtualBox Guest Additions version
       ansible.builtin.command:
         cmd: "{{ virtualbox_guest_install_dir }}/VBoxGuestAdditions-{{ virtualbox_guest_additions_installed_version }}/uninstall.sh"
       become: true
       changed_when: true
 
-    - name: Reboot system
-      ansible.builtin.reboot:
-        msg: "Rebooting system to apply changes..."
-        connect_timeout: 5
-        reboot_timeout: 600
-      become: true
+    # - name: Sync filesystem buffers
+    #   ansible.builtin.command: sync
+    #   become: true
+    #   changed_when: false
+    #
+    # - name: Pause to ensure filesystem changes settle
+    #   ansible.builtin.pause:
+    #     seconds: 5
+    #
+    # - name: Regenerate initramfs (Debian/Ubuntu)
+    #   ansible.builtin.command: update-initramfs -u
+    #   become: true
+    #   changed_when: false
+    #   when: ansible_os_family == "Debian"
+    #
+    # - name: Regenerate initramfs (Arch Linux)
+    #   ansible.builtin.command: mkinitcpio -P
+    #   become: true
+    #   changed_when: false
+    #   when: ansible_distribution == "Archlinux"
+    #
+    # - name: Check for /init existence
+    #   ansible.builtin.stat:
+    #     path: /init
+    #   register: init_file
+    #
+    # - name: Fail if /init is missing
+    #   ansible.builtin.fail:
+    #     msg: "/init not found — system will not boot"
+    #   when: not init_file.stat.exists
+    #
+    # - name: Reboot system
+    #   ansible.builtin.reboot:
+    #     msg: "Rebooting system after Guest Additions maintenance..."
+    #     connect_timeout: 5
+    #     reboot_timeout: 600
+    #   become: true
