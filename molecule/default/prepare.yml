@@ -1,0 +1,51 @@
+---
+- name: Prepare
+  hosts: all
+
+  vars_files:
+    - ../../vars/molecule.yml
+
+  vars:
+    ansible_user: vagrant
+
+  tasks:
+    - name: Find installed VBoxGuestAdditions directories
+      ansible.builtin.find:
+        paths: "{{ virtualbox_guest_install_dir }}"
+        patterns: "VBoxGuestAdditions-*"
+        file_type: directory
+        recurse: false
+      register: virtualbox_guest_additions_installed
+      failed_when: false
+      changed_when: false
+
+    - name: Fail if multiple VBoxGuestAdditions versions are found
+      ansible.builtin.fail:
+        msg: "Multiple VBoxGuestAdditions versions found: {{ virtualbox_guest_additions_installed.files | map(attribute='path') | list }}"
+      when: virtualbox_guest_additions_installed.files | length > 1
+
+    - name: Extract only the version into a variable
+      ansible.builtin.set_fact:
+        virtualbox_guest_additions_installed_version: >-
+          {%- if virtualbox_guest_additions_installed.files | length > 0 -%}
+            {{ virtualbox_guest_additions_installed.files[0].path | regex_search('[0-9.]+') }}
+          {%- else -%}
+            none
+          {%- endif -%}
+
+    - name: Debug extracted version
+      ansible.builtin.debug:
+        var: virtualbox_guest_additions_installed_version
+
+    - name: Uninstall current virtualbox Guest Additions version
+      ansible.builtin.command:
+        cmd: "{{ virtualbox_guest_install_dir }}/VBoxGuestAdditions-{{ virtualbox_guest_additions_installed_version }}/uninstall.sh"
+      become: true
+      changed_when: true
+
+    - name: Reboot system
+      ansible.builtin.reboot:
+        msg: "Rebooting system to apply changes..."
+        connect_timeout: 5
+        reboot_timeout: 600
+      become: true
