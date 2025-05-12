@@ -37,15 +37,30 @@
       ansible.builtin.debug:
         var: virtualbox_guest_additions_installed_version
 
-    - name: Uninstall current virtualbox Guest Additions version
+    - name: Uninstall current VirtualBox Guest Additions version
       ansible.builtin.command:
         cmd: "{{ virtualbox_guest_install_dir }}/VBoxGuestAdditions-{{ virtualbox_guest_additions_installed_version }}/uninstall.sh"
       become: true
       changed_when: true
 
+    - name: Sync filesystem buffers
+      ansible.builtin.command: sync
+      become: true
+      changed_when: false
+      when: virtualbox_guest_additions_installed_version != "none"
+
+    - name: Pause to ensure filesystem changes settle
+      ansible.builtin.pause:
+        seconds: 3
+      when: virtualbox_guest_additions_installed_version != "none"
+
     - name: Reboot system
       ansible.builtin.reboot:
-        msg: "Rebooting system to apply changes..."
-        connect_timeout: 5
-        reboot_timeout: 600
+        msg: "Rebooting system after Guest Additions maintenance..."
+        connect_timeout: 30
+        reboot_timeout: 900
+        test_command: uptime
+        pre_reboot_delay: 5
+        post_reboot_delay: 15
       become: true
+      when: virtualbox_guest_additions_installed_version != "none"
