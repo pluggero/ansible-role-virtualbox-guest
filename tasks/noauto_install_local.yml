@@ -6,10 +6,9 @@
         path: "{{ virtualbox_guest_mount_path }}"
         src: "{{ virtualbox_guest_local_mount_src }}"
         fstype: iso9660
-        opts: ro,noauto
-        state: mounted
+        opts: ro,loop
+        state: ephemeral
       become: true
-      changed_when: false
 
     - name: Get version of guest additions on local CD-ROM
       ansible.builtin.command:
@@ -32,10 +31,9 @@
         path: "{{ virtualbox_guest_mount_path }}"
         src: "{{ virtualbox_guest_local_mount_src }}"
         fstype: iso9660
-        opts: ro,noauto
-        state: absent
+        opts: ro,loop
+        state: unmounted
       become: true
-      changed_when: false
 
     - name: Determine if virtualbox guest additions version on CD-ROM is in the target version
       ansible.builtin.set_fact:

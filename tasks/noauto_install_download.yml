@@ -33,10 +33,9 @@
         path: "{{ virtualbox_guest_mount_path }}"
         src: "{{ virtualbox_guest_download_path }}"
         fstype: iso9660
-        opts: ro,noauto
-        state: mounted
+        opts: ro,loop
+        state: ephemeral
       become: true
-      changed_when: false
 
     - name: Install new virtualbox Guest Additions version
       ansible.builtin.command:
@@ -52,10 +51,9 @@
         path: "{{ virtualbox_guest_mount_path }}"
         src: "{{ virtualbox_guest_local_mount_src }}"
         fstype: iso9660
-        opts: ro,noauto
-        state: absent
+        opts: ro,loop
+        state: unmounted
       become: true
-      changed_when: false
 
     - name: Remove virtualbox guest additions iso
       when: virtualbox_guest_download_iso_cleanup
