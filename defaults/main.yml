@@ -1,5 +1,5 @@
 ---
-virtualbox_guest_virtualbox_version: "7.1.6"
+virtualbox_guest_virtualbox_version: "7.1.8"
 
 virtualbox_guest_install_method: "download" # options: download, local
 virtualbox_guest_install_dir: "/opt/"
