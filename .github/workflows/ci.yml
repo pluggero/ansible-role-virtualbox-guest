@@ -48,7 +48,7 @@ jobs:
       matrix:
         include:
           - vagrant_box: pluggero/debian12-ansible
-            vagrant_box_version: "1.2.0"
+            vagrant_box_version: "1.3.0"
           - vagrant_box: pluggero/archlinux-ansible
             vagrant_box_version: "1.2.0"
     env:
@@ -107,6 +107,18 @@ jobs:
       - name: Verify Vagrant installation
         run: vagrant --version
 
+      - name: Generate timestamp
+        run: echo "TIMESTAMP=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+
+      - name: Start screenshot timer in background
+        run: |
+          nohup bash -c '
+          sleep 480
+          VM_ID=$(VBoxManage list runningvms | head -n1 | cut -d "\"" -f2)
+          echo "Taking screenshot of $VM_ID"
+          VBoxManage controlvm "$VM_ID" screenshotpng "/tmp/vm-screenshot-${TIMESTAMP}.png"
+          ' &
+
       - name: Run Molecule tests
         run: molecule test
         env:
@@ -114,3 +126,11 @@ jobs:
           ANSIBLE_FORCE_COLOR: "1"
           MOLECULE_VAGRANT_BOX: ${{ matrix.vagrant_box }}
           MOLECULE_VAGRANT_BOX_VERSION: ${{ matrix.vagrant_box_version }}
+
+      - name: Upload screenshot if exists
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vm-screenshot-${{ env.TIMESTAMP }}
+          path: /tmp/vm-screenshot-${{ env.TIMESTAMP }}.png
+          if-no-files-found: ignore
