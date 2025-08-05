@@ -35,7 +35,7 @@ jobs:
           yamllint .
 
       - name: Run ansible-lint
-        uses: ansible/ansible-lint@4114ad63edbc25dcd9afc4f41b29dbcbebdf21ca # v25.5.0
+        uses: ansible/ansible-lint@9765b8704b2c3f4ab782815b528e0393662e1c04 # v25.7.0
         with:
           working_directory: "pluggero.virtualbox_guest"
           requirements_file: "requirements.yml"
