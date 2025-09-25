@@ -2,7 +2,7 @@
 - name: Check if virtualbox guest additions version on CD-ROM is in the target version
   block:
     - name: Mount local CD-ROM
-      ansible.builtin.mount:
+      ansible.posix.mount:
         path: "{{ virtualbox_guest_mount_path }}"
         src: "{{ virtualbox_guest_local_mount_src }}"
         fstype: iso9660
@@ -27,7 +27,7 @@
           - "Installed version: {{ virtualbox_guest_additions_installed_version }}"
 
     - name: Unmount local CD-ROM
-      ansible.builtin.mount:
+      ansible.posix.mount:
         path: "{{ virtualbox_guest_mount_path }}"
         src: "{{ virtualbox_guest_local_mount_src }}"
         fstype: iso9660
@@ -61,7 +61,7 @@
         loop_var: var_file
 
     - name: Mount local CD-ROM
-      ansible.builtin.mount:
+      ansible.posix.mount:
         path: "{{ virtualbox_guest_mount_path }}"
         src: "{{ virtualbox_guest_local_mount_src }}"
         fstype: iso9660
@@ -80,7 +80,7 @@
       notify: Reboot system
 
     - name: Unmount local CD-ROM
-      ansible.builtin.mount:
+      ansible.posix.mount:
         path: "{{ virtualbox_guest_mount_path }}"
         src: "{{ virtualbox_guest_local_mount_src }}"
         fstype: iso9660

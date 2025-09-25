@@ -38,7 +38,7 @@
       become: true
 
     - name: Mount local CD-ROM
-      ansible.builtin.mount:
+      ansible.posix.mount:
         path: "{{ virtualbox_guest_mount_path }}"
         src: "{{ virtualbox_guest_download_path }}"
         fstype: iso9660
@@ -56,7 +56,7 @@
       notify: Reboot system
 
     - name: Unmount local CD-ROM
-      ansible.builtin.mount:
+      ansible.posix.mount:
         path: "{{ virtualbox_guest_mount_path }}"
         src: "{{ virtualbox_guest_local_mount_src }}"
         fstype: iso9660
