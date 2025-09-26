@@ -12,3 +12,11 @@ provisioner:
   name: ansible
   playbooks:
     converge: ${MOLECULE_PLAYBOOK:-converge.yml}
+  config_options:
+    defaults:
+      timeout: 120
+      host_key_checking: false
+      ssh_args: '-o ControlMaster=auto -o ControlPersist=60s -o ServerAliveInterval=30 -o ServerAliveCountMax=10'
+    ssh_connection:
+      ssh_args: '-o ControlMaster=auto -o ControlPersist=60s -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o ConnectTimeout=120'
+      retries: 5

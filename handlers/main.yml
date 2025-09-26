@@ -2,7 +2,12 @@
 - name: Reboot system
   ansible.builtin.reboot:
     msg: "Rebooting system to apply changes..."
-    connect_timeout: 5
-    reboot_timeout: 600
+    connect_timeout: 120
+    reboot_timeout: 1200
+    test_command: whoami
+    pre_reboot_delay: 5
+    post_reboot_delay: 60
   become: true
+  retries: 5
+  delay: 30
   when: virtualbox_guest_reboot

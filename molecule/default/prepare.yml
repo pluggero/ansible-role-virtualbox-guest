@@ -57,12 +57,12 @@
     - name: Reboot system
       ansible.builtin.reboot:
         msg: "Rebooting system after Guest Additions maintenance..."
-        connect_timeout: 60
-        reboot_timeout: 900
-        test_command: uptime
+        connect_timeout: 120
+        reboot_timeout: 1200
+        test_command: whoami
         pre_reboot_delay: 5
-        post_reboot_delay: 30
+        post_reboot_delay: 60
       become: true
-      retries: 3
-      delay: 10
+      retries: 5
+      delay: 30
       when: virtualbox_guest_additions_installed_version != "none"
