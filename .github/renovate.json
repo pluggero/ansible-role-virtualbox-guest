@@ -34,8 +34,7 @@
       "customType": "regex",
       "managerFilePatterns": [
         "/^defaults/main\\.yml$/",
-        "/^.github/workflows/ci\\.yml$/",
-        "/^vars/molecule\\.yml$/"
+        "/^.github/workflows/ci\\.yml$/"
       ],
       "matchStrings": [
         "virtualbox_guest_virtualbox_version:\\s+\"(?<currentValue>[\\d\\.]+)\"",
