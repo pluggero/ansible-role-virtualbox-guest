@@ -12,39 +12,17 @@
       loop_control:
         loop_var: var_file
 
-    - name: Check if virtualbox guest additions needs to be installed
-      block:
-        - name: Check if virtualbox guest additions is installed
-          ansible.builtin.find:
-            paths: "{{ virtualbox_guest_install_dir }}"
-            patterns: "VBoxGuestAdditions-*"
-            file_type: directory
-            recurse: false
-          failed_when: false
-          changed_when: false
-          register: virtualbox_guest_additions_installed
+    - name: Install OS-specific dependencies
+      ansible.builtin.include_tasks: "{{ task_file }}"
+      with_first_found:
+        - "{{ role_path }}/tasks/noauto_install_dep_{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ role_path }}/tasks/noauto_install_dep_{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ role_path }}/tasks/noauto_install_dep_{{ ansible_distribution }}.yml"
+        - "{{ role_path }}/tasks/noauto_install_dep_{{ ansible_os_family }}.yml"
+        - "{{ role_path }}/tasks/noauto_install_dep_{{ ansible_lsb.id }}.yml"
+      loop_control:
+        loop_var: task_file
 
-        - name: Extract only the version into a variable
-          ansible.builtin.set_fact:
-            virtualbox_guest_additions_installed_version: >-
-              {%- if virtualbox_guest_additions_installed.files | length > 0 -%}
-                {{ virtualbox_guest_additions_installed.files[0].path | regex_search('[0-9.]+') }}
-              {%- else -%}
-                none
-              {%- endif -%}
-
-        - name: Debug installed virtualbox guest additions version
-          ansible.builtin.debug:
-            var: virtualbox_guest_additions_installed_version
-
-        - name: Force install if the version numbers do not match
-          ansible.builtin.set_fact:
-            virtualbox_guest_additions_reinstall: true
-          when:
-            - virtualbox_guest_additions_installed_version is defined
-            - virtualbox_guest_additions_installed_version != virtualbox_guest_virtualbox_version
-
-    - name: Install virtualbox guest additions
+    - name: Install Virtualbox Guest Additions
       ansible.builtin.include_tasks:
         file: noauto_install_{{ virtualbox_guest_install_method }}.yml
-      when: virtualbox_guest_additions_reinstall is defined and virtualbox_guest_additions_reinstall

@@ -1,35 +1,17 @@
 ---
 - name: Verify
   hosts: all
+  gather_facts: true
 
   vars_files:
+    - ../../defaults/main.yml
     - ../../vars/molecule.yml
 
   tasks:
-    - name: Check if virtualbox guest additions is installed
-      ansible.builtin.find:
-        paths: "{{ virtualbox_guest_install_dir }}"
-        patterns: "VBoxGuestAdditions-*"
-        file_type: directory
-        recurse: false
-      failed_when: false
-      changed_when: false
-      register: virtualbox_guest_additions_installed
-
-    - name: Extract only the version into a variable
-      ansible.builtin.set_fact:
-        virtualbox_guest_additions_installed_version: >-
-          {%- if virtualbox_guest_additions_installed.files | length > 0 -%}
-            {{ virtualbox_guest_additions_installed.files[0].path | regex_search('[0-9.]+') }}
-          {%- else -%}
-            none
-          {%- endif -%}
-
-    - name: Debug installed virtualbox guest additions version
-      ansible.builtin.debug:
-        var: virtualbox_guest_additions_installed_version
+    - name: Check installed version
+      ansible.builtin.include_tasks: "../../tasks/noauto_check_installed_version.yml"
 
     - name: Assert installed version is correct
       ansible.builtin.assert:
         that:
-          - "virtualbox_guest_virtualbox_version == virtualbox_guest_additions_installed_version"
+          - "virtualbox_guest_installed_version == virtualbox_guest_virtualbox_version"
