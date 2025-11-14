@@ -13,6 +13,21 @@ None.
 Available variables are listed below, along with default values (see `defaults/main.yml`):
 
 ```yaml
+virtualbox_guest_version: "x.x"
+```
+
+The version of Virtualbox Guest Additions to install can be defined in the variable `virtualbox_guest_version`.
+
+```yaml
+virtualbox_guest_install_method: "source"
+```
+
+The method used to install virtualbox_guest can be defined in the variable `virtualbox_guest_install_method`.
+The following methods are available:
+
+- `source`: Installs Virtualbox Guest Additions from source
+
+```yaml
 virtualbox_guest_reboot: true
 ```
 

@@ -1,68 +1,17 @@
 ---
 - name: Prepare
   hosts: all
+  gather_facts: true
 
   vars_files:
+    - ../../defaults/main.yml
     - ../../vars/molecule.yml
 
-  vars:
-    ansible_user: vagrant
-
   tasks:
-    - name: Find installed VBoxGuestAdditions directories
-      ansible.builtin.find:
-        paths: "{{ virtualbox_guest_install_dir }}"
-        patterns: "VBoxGuestAdditions-*"
-        file_type: directory
-        recurse: false
-      register: virtualbox_guest_additions_installed
-      failed_when: false
-      changed_when: false
+    - name: Import installed VirtualBox Guest Additions version check
+      ansible.builtin.include_tasks: "../../tasks/noauto_check_installed_version.yml"
+      when: virtualbox_guest_installed_version is not defined
 
-    - name: Fail if multiple VBoxGuestAdditions versions are found
-      ansible.builtin.fail:
-        msg: "Multiple VBoxGuestAdditions versions found: {{ virtualbox_guest_additions_installed.files | map(attribute='path') | list }}"
-      when: virtualbox_guest_additions_installed.files | length > 1
-
-    - name: Extract only the version into a variable
-      ansible.builtin.set_fact:
-        virtualbox_guest_additions_installed_version: >-
-          {%- if virtualbox_guest_additions_installed.files | length > 0 -%}
-            {{ virtualbox_guest_additions_installed.files[0].path | regex_search('[0-9.]+') }}
-          {%- else -%}
-            none
-          {%- endif -%}
-
-    - name: Debug extracted version
-      ansible.builtin.debug:
-        var: virtualbox_guest_additions_installed_version
-
-    - name: Uninstall current VirtualBox Guest Additions version
-      ansible.builtin.command:
-        cmd: "{{ virtualbox_guest_install_dir }}/VBoxGuestAdditions-{{ virtualbox_guest_additions_installed_version }}/uninstall.sh"
-      become: true
-      changed_when: true
-
-    - name: Sync filesystem buffers
-      ansible.builtin.command: sync
-      become: true
-      changed_when: false
-      when: virtualbox_guest_additions_installed_version != "none"
-
-    - name: Pause to ensure filesystem changes settle
-      ansible.builtin.pause:
-        seconds: 3
-      when: virtualbox_guest_additions_installed_version != "none"
-
-    - name: Reboot system
-      ansible.builtin.reboot:
-        msg: "Rebooting system after Guest Additions maintenance..."
-        connect_timeout: 60
-        reboot_timeout: 900
-        test_command: uptime
-        pre_reboot_delay: 5
-        post_reboot_delay: 30
-      become: true
-      retries: 3
-      delay: 10
-      when: virtualbox_guest_additions_installed_version != "none"
+    - name: Uninstall current VirtualBox Guest Additions installation
+      ansible.builtin.include_tasks: "../../tasks/noauto_uninstall.yml"
+      when: virtualbox_guest_installed_version is defined and virtualbox_guest_installed_version != ""

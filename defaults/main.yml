@@ -1,15 +1,13 @@
 ---
 virtualbox_guest_virtualbox_version: "7.1.12"
+virtualbox_guest_install_method: "source"
+virtualbox_guest_force_install: false
 
-virtualbox_guest_install_method: "download" # options: download, local
 virtualbox_guest_install_dir: "/opt/"
 virtualbox_guest_mount_path: "/mnt/vbox_guest_additions"
 virtualbox_guest_installer_path: "{{ virtualbox_guest_mount_path }}/{{ virtualbox_guest_installer }}"
 virtualbox_guest_reboot: true
 
-# Variables for download option
 virtualbox_guest_download_url: "https://download.virtualbox.org/virtualbox/{{ virtualbox_guest_virtualbox_version }}/VBoxGuestAdditions_{{ virtualbox_guest_virtualbox_version }}.iso"
 virtualbox_guest_download_path: "{{ ansible_env.HOME }}/{{ virtualbox_guest_download_url | basename }}"
 virtualbox_guest_download_iso_cleanup: true
-# Variables for local option
-virtualbox_guest_local_mount_src: "/dev/cdrom"

@@ -1,0 +1,74 @@
+---
+- name: Ensure VirtualBox Guest Additions is installed
+  block:
+    - name: Import installed VirtualBox Guest Additions version check
+      ansible.builtin.include_tasks: noauto_check_installed_version.yml
+      when: virtualbox_guest_installed_version is not defined
+
+    - name: Force install if the version numbers do not match
+      ansible.builtin.set_fact:
+        virtualbox_guest_force_install: true
+      when:
+        - virtualbox_guest_installed_version is defined
+        - virtualbox_guest_installed_version != virtualbox_guest_virtualbox_version
+
+    - name: Install VirtualBox Guest Additions from source
+      when: virtualbox_guest_installed_version is not defined or virtualbox_guest_force_install
+      block:
+        - name: Uninstall current VirtualBox Guest Additions installation
+          ansible.builtin.include_tasks: noauto_uninstall.yml
+          when: virtualbox_guest_installed_version is defined and virtualbox_guest_installed_version != ""
+
+        - name: Download VirtualBox Guest Additions
+          ansible.builtin.get_url:
+            url: "{{ virtualbox_guest_download_url }}"
+            dest: "{{ virtualbox_guest_download_path }}"
+            mode: "0644"
+
+        - name: Ensure mount folder exists
+          ansible.builtin.file:
+            path: "{{ virtualbox_guest_mount_path }}"
+            state: directory
+            mode: "0700"
+            owner: root
+            group: root
+          become: true
+
+        - name: Mount local CD-ROM
+          ansible.posix.mount:
+            path: "{{ virtualbox_guest_mount_path }}"
+            src: "{{ virtualbox_guest_download_path }}"
+            fstype: iso9660
+            opts: ro,loop
+            state: ephemeral
+          become: true
+
+        - name: Install VirtualBox Guest Additions
+          ansible.builtin.command:
+            cmd: "{{ virtualbox_guest_installer_path }}"
+          become: true
+          changed_when: true
+          register: virtualbox_guest_additions_install_result
+          failed_when: virtualbox_guest_additions_install_result.rc not in [0, 2]
+          notify: Reboot system
+
+        - name: Unmount local CD-ROM
+          ansible.posix.mount:
+            path: "{{ virtualbox_guest_mount_path }}"
+            src: "{{ virtualbox_guest_download_path }}"
+            fstype: iso9660
+            opts: ro,loop
+            state: unmounted
+          become: true
+
+        - name: Remove mount folder
+          ansible.builtin.file:
+            path: "{{ virtualbox_guest_mount_path }}"
+            state: absent
+          become: true
+
+        - name: Remove VirtualBox Guest Additions iso
+          when: virtualbox_guest_download_iso_cleanup
+          ansible.builtin.file:
+            path: "{{ virtualbox_guest_download_path }}"
+            state: absent

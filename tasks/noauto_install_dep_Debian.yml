@@ -5,7 +5,6 @@
   when: ansible_pkg_mgr != "apt"
 
 - name: Install virtualbox guest additions dependencies via apt
-  when: ansible_pkg_mgr == "apt"
   block:
     - name: Update apt cache
       ansible.builtin.apt:
