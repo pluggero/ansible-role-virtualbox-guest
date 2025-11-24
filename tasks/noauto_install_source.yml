@@ -43,9 +43,14 @@
             state: ephemeral
           become: true
 
+        # The installer may prompt "Do you wish to continue? [yes or no]" only in certain scenarios where some artifacts are already installed
+        # Using shell with echo instead of expect module avoids waiting for timeout when prompt doesn't appear
         - name: Install VirtualBox Guest Additions
-          ansible.builtin.command:
-            cmd: "{{ virtualbox_guest_installer_path }}"
+          ansible.builtin.shell: |
+            set -o pipefail
+            echo "yes" | {{ virtualbox_guest_installer_path }} --nox11
+          args:
+            executable: /bin/bash
           become: true
           changed_when: true
           register: virtualbox_guest_additions_install_result
