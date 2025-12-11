@@ -12,6 +12,6 @@
       ansible.builtin.include_tasks: "../../tasks/noauto_check_installed_version.yml"
       when: virtualbox_guest_installed_version is not defined
 
-    - name: Uninstall current VirtualBox Guest Additions installation
-      ansible.builtin.include_tasks: "../../tasks/noauto_uninstall.yml"
+    - name: Uninstall current VirtualBox Guest Additions source installation
+      ansible.builtin.include_tasks: "../../tasks/noauto_uninstall_source.yml"
       when: virtualbox_guest_installed_version is defined and virtualbox_guest_installed_version != ""
