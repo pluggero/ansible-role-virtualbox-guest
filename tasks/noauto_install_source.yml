@@ -19,6 +19,15 @@
           ansible.builtin.include_tasks: noauto_uninstall.yml
           when: virtualbox_guest_installed_version is defined and virtualbox_guest_installed_version != ""
 
+        - name: Display detected hypervisor type
+          ansible.builtin.debug:
+            msg: "Detected hypervisor: {{ virtualbox_guest_hypervisor }}. VirtualBox Guest Additions will be installed/updated."
+
+        - name: Warn when installing on non-VirtualBox hypervisor
+          ansible.builtin.debug:
+            msg: "WARNING: Detected hypervisor is '{{ virtualbox_guest_hypervisor }}', not 'virtualbox'. Installation may fail or not function correctly."
+          when: virtualbox_guest_hypervisor not in ['virtualbox', 'VirtualBox', 'unknown']
+
         - name: Download VirtualBox Guest Additions
           ansible.builtin.get_url:
             url: "{{ virtualbox_guest_download_url }}"
@@ -54,8 +63,14 @@
           become: true
           changed_when: true
           register: virtualbox_guest_additions_install_result
-          failed_when: virtualbox_guest_additions_install_result.rc not in [0, 2]
+          failed_when:
+            - virtualbox_guest_hypervisor in ['virtualbox', 'VirtualBox', 'unknown']
+            - virtualbox_guest_additions_install_result.rc not in [0, 2]
           notify: Reboot system
+
+        - name: Display installation result status
+          ansible.builtin.debug:
+            msg: "VirtualBox Guest Additions installation completed with exit code {{ virtualbox_guest_additions_install_result.rc }} on {{ virtualbox_guest_hypervisor }} hypervisor."
 
         - name: Unmount local CD-ROM
           ansible.posix.mount:
