@@ -52,6 +52,8 @@ jobs:
             vagrant_box_version: "2025.12.28"
           - vagrant_box: archlinux
             vagrant_box_version: "2025.12.21"
+          - vagrant_box: freebsd14
+            vagrant_box_version: "2026.01.19"
     env:
       VBOX_VERSION: "7.1.12"
       VBOX_DEB_DISTRO: "Ubuntu"

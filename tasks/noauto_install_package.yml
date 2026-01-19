@@ -1,0 +1,46 @@
+---
+- name: Ensure VirtualBox Guest Additions is installed via package manager
+  block:
+    - name: Display detected hypervisor type
+      ansible.builtin.debug:
+        msg: "Detected hypervisor: {{ virtualbox_guest_hypervisor }}. VirtualBox Guest Additions will be installed via package manager."
+
+    - name: Warn when installing on non-VirtualBox hypervisor
+      ansible.builtin.debug:
+        msg: "WARNING: Detected hypervisor is '{{ virtualbox_guest_hypervisor }}', not 'virtualbox'. Installation may fail or not function correctly."
+      when: virtualbox_guest_hypervisor not in ['virtualbox', 'VirtualBox', 'unknown']
+
+    - name: Update pkg repository catalog
+      ansible.builtin.command: pkg update
+      changed_when: false  # Repository update is a preparatory operation, not a state change
+      become: true
+      when: ansible_os_family == 'FreeBSD'
+
+    - name: Install VirtualBox Guest Additions on FreeBSD
+      community.general.pkgng:
+        name: "{{ package }}"
+        state: present
+      loop: "{{ virtualbox_guest_pkgs }}"
+      loop_control:
+        loop_var: package
+      become: true
+      when: ansible_os_family == 'FreeBSD'
+      register: virtualbox_guest_additions_install_result
+
+    - name: Enable VirtualBox Guest Additions services in rc.conf
+      ansible.builtin.lineinfile:
+        path: /etc/rc.conf
+        regexp: "^{{ item.key }}="
+        line: '{{ item.key }}="{{ item.value }}"'
+        create: true
+        mode: "0644"
+      loop:
+        - {key: "vboxguest_enable", value: "YES"}
+        - {key: "vboxservice_enable", value: "YES"}
+      become: true
+      when: ansible_os_family == 'FreeBSD'
+      notify: Reboot system
+
+    - name: Display installation result
+      ansible.builtin.debug:
+        msg: "VirtualBox Guest Additions installed successfully via package manager on {{ ansible_os_family }}."

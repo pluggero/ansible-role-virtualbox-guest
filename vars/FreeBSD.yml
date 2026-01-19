@@ -1,0 +1,8 @@
+---
+virtualbox_guest_dep_pkgs:
+  - virtualbox-ose-kmod
+
+virtualbox_guest_pkgs:
+  - virtualbox-ose-additions
+
+virtualbox_guest_installer: "VBoxLinuxAdditions.run"

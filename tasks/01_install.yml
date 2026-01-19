@@ -12,6 +12,11 @@
       loop_control:
         loop_var: var_file
 
+    - name: Set installation method to package for FreeBSD
+      ansible.builtin.set_fact:
+        virtualbox_guest_install_method: "package"
+      when: ansible_os_family == 'FreeBSD'
+
     - name: Install OS-specific dependencies
       ansible.builtin.include_tasks: "{{ task_file }}"
       with_first_found:
