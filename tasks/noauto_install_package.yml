@@ -1,46 +1,52 @@
 ---
-- name: Ensure VirtualBox Guest Additions is installed via package manager
+- name: Install VirtualBox Guest Additions OS-specifically via package
   block:
-    - name: Display detected hypervisor type
-      ansible.builtin.debug:
-        msg: "Detected hypervisor: {{ virtualbox_guest_hypervisor }}. VirtualBox Guest Additions will be installed via package manager."
+    - name: Import installed VirtualBox Guest Additions version check
+      ansible.builtin.include_tasks: noauto_check_installed_version.yml
+      when: virtualbox_guest_installed_version is not defined
 
-    - name: Warn when installing on non-VirtualBox hypervisor
-      ansible.builtin.debug:
-        msg: "WARNING: Detected hypervisor is '{{ virtualbox_guest_hypervisor }}', not 'virtualbox'. Installation may fail or not function correctly."
-      when: virtualbox_guest_hypervisor not in ['virtualbox', 'VirtualBox', 'unknown']
-
-    - name: Update pkg repository catalog
-      ansible.builtin.command: pkg update
-      changed_when: false  # Repository update is a preparatory operation, not a state change
-      become: true
-      when: ansible_os_family == 'FreeBSD'
-
-    - name: Install VirtualBox Guest Additions on FreeBSD
-      community.general.pkgng:
-        name: "{{ package }}"
-        state: present
-      loop: "{{ virtualbox_guest_pkgs }}"
+    - name: Check VirtualBox Guest Additions pkg mgr version
+      ansible.builtin.include_tasks: "{{ task_file }}"
+      with_first_found:
+        - "noauto_check_pkg_mgr_version_{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+        - "noauto_check_pkg_mgr_version_{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+        - "noauto_check_pkg_mgr_version_{{ ansible_distribution }}.yml"
+        - "noauto_check_pkg_mgr_version_{{ ansible_os_family }}.yml"
+        - "noauto_check_pkg_mgr_version_{{ ansible_lsb.id }}.yml"
       loop_control:
-        loop_var: package
-      become: true
-      when: ansible_os_family == 'FreeBSD'
-      register: virtualbox_guest_additions_install_result
+        loop_var: task_file
 
-    - name: Enable VirtualBox Guest Additions services in rc.conf
-      ansible.builtin.lineinfile:
-        path: /etc/rc.conf
-        regexp: "^{{ item.key }}="
-        line: '{{ item.key }}="{{ item.value }}"'
-        create: true
-        mode: "0644"
-      loop:
-        - {key: "vboxguest_enable", value: "YES"}
-        - {key: "vboxservice_enable", value: "YES"}
-      become: true
-      when: ansible_os_family == 'FreeBSD'
-      notify: Reboot system
+    - name: Force install if the version numbers do not match
+      ansible.builtin.set_fact:
+        virtualbox_guest_force_install: true
+      when:
+        - virtualbox_guest_installed_version is defined
+        - virtualbox_guest_pkg_mgr_version is defined
+        - virtualbox_guest_installed_version != virtualbox_guest_pkg_mgr_version
 
-    - name: Display installation result
-      ansible.builtin.debug:
-        msg: "VirtualBox Guest Additions installed successfully via package manager on {{ ansible_os_family }}."
+    - name: Install VirtualBox Guest Additions package
+      when: virtualbox_guest_installed_version is not defined or virtualbox_guest_force_install
+      block:
+        - name: Display detected hypervisor type
+          ansible.builtin.debug:
+            msg: "Detected hypervisor: {{ virtualbox_guest_hypervisor }}. VirtualBox Guest Additions will be installed via package manager."
+
+        - name: Warn when installing on non-VirtualBox hypervisor
+          ansible.builtin.debug:
+            msg: "WARNING: Detected hypervisor is '{{ virtualbox_guest_hypervisor }}', not 'virtualbox'. Installation may fail or not function correctly."
+          when: virtualbox_guest_hypervisor not in ['virtualbox', 'VirtualBox', 'unknown']
+
+        - name: Uninstall current VirtualBox Guest Additions installation
+          ansible.builtin.include_tasks: noauto_uninstall.yml
+          when: virtualbox_guest_installed_version is defined and virtualbox_guest_installed_version != ""
+
+        - name: Install VirtualBox Guest Additions OS-specifically via package
+          ansible.builtin.include_tasks: "{{ task_file }}"
+          with_first_found:
+            - "noauto_install_{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+            - "noauto_install_{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+            - "noauto_install_{{ ansible_distribution }}.yml"
+            - "noauto_install_{{ ansible_os_family }}.yml"
+            - "noauto_install_{{ ansible_lsb.id }}.yml"
+          loop_control:
+            loop_var: task_file

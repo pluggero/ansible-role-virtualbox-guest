@@ -8,7 +8,7 @@
   block:
     - name: Update pkg repository catalog
       ansible.builtin.command: pkg update
-      changed_when: false # Repository update is a preparatory operation, not a state change
+      changed_when: false # Currently, the pkg module does not support update_cache and cache_valid_time.
       become: true
 
     - name: Ensure virtualbox guest additions dependencies are installed
