@@ -1,0 +1,19 @@
+---
+- name: Ensure we are using apk
+  ansible.builtin.fail:
+    msg: "This role only supports {{ ansible_os_family }} systems that use apk as a package manager."
+  when: ansible_pkg_mgr != "apk"
+
+- name: Install VirtualBox Guest Additions via apk
+  block:
+    - name: Update apk cache
+      community.general.apk:
+        update_cache: true
+      changed_when: false # The apk module currently does not support cache_valid_time.
+      become: true
+
+    - name: Ensure VirtualBox Guest Additions is installed
+      community.general.apk:
+        name: "{{ virtualbox_guest_distro_pkgs }}"
+        state: present
+      become: true

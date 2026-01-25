@@ -1,0 +1,9 @@
+---
+virtualbox_guest_dep_pkgs: []
+
+virtualbox_guest_distro_pkgs:
+  - virtualbox-guest-additions
+  - virtualbox-guest-additions-x11
+  - virtualbox-guest-additions-openrc
+
+virtualbox_guest_installer: "VBoxLinuxAdditions.run"

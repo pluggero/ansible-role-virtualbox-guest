@@ -15,13 +15,13 @@
       ansible.builtin.assert:
         that:
           - "virtualbox_guest_installed_version == virtualbox_guest_virtualbox_version"
-      when: ansible_os_family != 'FreeBSD'
+      when: ansible_os_family not in ['FreeBSD', 'Alpine']
 
-    - name: Assert VirtualBox Guest Additions is installed (FreeBSD)
+    - name: Assert VirtualBox Guest Additions is installed in FreeBSD and Alpine
       ansible.builtin.assert:
         that:
           - "virtualbox_guest_installed_version is defined"
           - "virtualbox_guest_installed_version != ''"
         fail_msg: "VirtualBox Guest Additions is not installed"
         success_msg: "VirtualBox Guest Additions {{ virtualbox_guest_installed_version }} is installed (package-based installation, version may differ from selected version)"
-      when: ansible_os_family == 'FreeBSD'
+      when: ansible_os_family in ['FreeBSD', 'Alpine']
