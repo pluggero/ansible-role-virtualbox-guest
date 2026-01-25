@@ -1,7 +1,7 @@
 ---
 virtualbox_guest_dep_pkgs: []
 
-virtualbox_guest_pkgs:
+virtualbox_guest_distro_pkgs:
   - virtualbox-guest-additions-iso
   - virtualbox-guest-dkms
   - virtualbox-guest-source

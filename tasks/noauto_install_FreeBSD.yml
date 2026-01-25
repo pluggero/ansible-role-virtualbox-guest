@@ -1,0 +1,36 @@
+---
+- name: Ensure we are using pkgng
+  ansible.builtin.fail:
+    msg: "This role only supports {{ ansible_os_family }} systems that use pkgng as a package manager."
+  when: ansible_pkg_mgr != "pkgng"
+
+- name: Install VirtualBox Guest Additions via pkgng
+  block:
+    - name: Update pkg repository catalog
+      ansible.builtin.command: pkg update
+      changed_when: false # Currently, the pkg module does not support update_cache and cache_valid_time.
+      become: true
+
+    - name: Ensure VirtualBox Guest Additions are installed
+      community.general.pkgng:
+        name: "{{ package }}"
+        state: present
+      loop: "{{ virtualbox_guest_distro_pkgs }}"
+      loop_control:
+        loop_var: package
+      become: true
+      notify: Reboot system
+
+    - name: Enable VirtualBox Guest Additions services in rc.conf
+      ansible.builtin.lineinfile:
+        path: /etc/rc.conf
+        regexp: "^{{ entry }}="
+        line: '{{ entry }}="YES"'
+        create: true
+        mode: "0644"
+      loop:
+        - vboxguest_enable
+        - vboxservice_enable
+      loop_control:
+        loop_var: entry
+      become: true

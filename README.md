@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/pluggero/ansible-role-virtualbox-guest/actions/workflows/ci.yml/badge.svg)](https://github.com/pluggero/ansible-role-virtualbox-guest/actions/workflows/ci.yml) [![Ansible Galaxy downloads](https://img.shields.io/ansible/role/d/pluggero/virtualbox_guest?label=Galaxy%20downloads&logo=ansible&color=%23096598)](https://galaxy.ansible.com/ui/standalone/roles/pluggero/virtualbox_guest)
 
-An Ansible Role that installs VirtualBox Guest Additions.
+An Ansible Role that installs VirtualBox Guest Additions on Linux distributions and FreeBSD.
 
 ## Requirements
 
@@ -25,7 +25,8 @@ virtualbox_guest_install_method: "source"
 The method used to install virtualbox_guest can be defined in the variable `virtualbox_guest_install_method`.
 The following methods are available:
 
-- `source`: Installs Virtualbox Guest Additions from source
+- `source`: Installs VirtualBox Guest Additions from source
+- `package`: Installs VirtualBox Guest Additions from OS native packages
 
 ```yaml
 virtualbox_guest_reboot: true

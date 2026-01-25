@@ -1,0 +1,33 @@
+---
+- name: Ensure we are using pkgng
+  ansible.builtin.fail:
+    msg: "This role only supports {{ ansible_os_family }} systems that use pkgng as a package manager."
+  when: ansible_pkg_mgr != "pkgng"
+
+- name: Checks VirtualBox Guest Additions version in package manager
+  when: virtualbox_guest_distro_pkgs is defined and virtualbox_guest_distro_pkgs | length > 0
+  block:
+    - name: Update pkg repository catalog
+      ansible.builtin.command: pkg update
+      changed_when: false # Currently, the pkg module does not support update_cache and cache_valid_time.
+      become: true
+
+    - name: Get VirtualBox Guest Additions version from package manager
+      ansible.builtin.command:
+        cmd: "pkg rquery '%v' {{ virtualbox_guest_distro_pkgs[0] }}"
+      changed_when: false
+      failed_when: false
+      ignore_errors: true
+      register: virtualbox_guest_pkg_mgr_version_cmd
+
+    - name: Debug output
+      ansible.builtin.debug:
+        var: virtualbox_guest_pkg_mgr_version_cmd
+
+    - name: Extract only the version into a variable
+      ansible.builtin.set_fact:
+        virtualbox_guest_pkg_mgr_version: "{{ (virtualbox_guest_pkg_mgr_version_cmd.stdout | regex_search('([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1'))[0] }}"
+
+    - name: Debug VirtualBox Guest Additions version from package manager
+      ansible.builtin.debug:
+        var: virtualbox_guest_pkg_mgr_version

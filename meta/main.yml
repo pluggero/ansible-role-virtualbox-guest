@@ -5,7 +5,7 @@ galaxy_info:
   role_name: virtualbox_guest
   namespace: pluggero
   author: pluggero
-  description: Installs VirtualBox Guest Additions on various Linux distributions.
+  description: Installs VirtualBox Guest Additions on various Linux distributions and FreeBSD.
   company: Pluggramming
   license: license (MIT)
   min_ansible_version: "2.10"
@@ -16,5 +16,8 @@ galaxy_info:
     - name: Debian
       versions:
         - bookworm
+    - name: FreeBSD
+      versions:
+        - "14.0"
 
   galaxy_tags: []

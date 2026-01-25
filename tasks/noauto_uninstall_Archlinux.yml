@@ -15,7 +15,7 @@
       community.general.pacman:
         name: "{{ package }}"
         state: absent
-      loop: "{{ virtualbox_guest_pkgs }}"
+      loop: "{{ virtualbox_guest_distro_pkgs }}"
       loop_control:
         loop_var: package
       become: true
