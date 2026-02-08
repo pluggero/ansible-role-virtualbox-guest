@@ -7,6 +7,11 @@
     - ../../defaults/main.yml
     - ../../vars/molecule.yml
 
+  vars:
+    ansible_user: ansible
+    ansible_password: ansible
+    ansible_become_password: ansible
+
   tasks:
     - name: Check installed version
       ansible.builtin.include_tasks: "../../tasks/noauto_check_installed_version.yml"

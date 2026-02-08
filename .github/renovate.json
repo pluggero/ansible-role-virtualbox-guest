@@ -72,7 +72,7 @@
       ],
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "pluggero/vagrant-debian12-ansible",
-      "versioningTemplate": "semver"
+      "versioningTemplate": "loose"
     },
     {
       "customType": "regex",
@@ -84,7 +84,31 @@
       ],
       "datasourceTemplate": "github-tags",
       "depNameTemplate": "pluggero/vagrant-archlinux-ansible",
-      "versioningTemplate": "semver"
+      "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^.github/workflows/ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "vagrant_box:\\s+alpinelinux323\\s+vagrant_box_version:\\s+\"(?<currentValue>[\\d\\.]+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "pluggero/vagrant-alpinelinux323-ansible",
+      "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^.github/workflows/ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "vagrant_box:\\s+freebsd14\\s+vagrant_box_version:\\s+\"(?<currentValue>[\\d\\.]+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "depNameTemplate": "pluggero/vagrant-freebsd14-ansible",
+      "versioningTemplate": "loose"
     },
     {
       "customType": "regex",

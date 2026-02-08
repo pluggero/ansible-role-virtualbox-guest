@@ -6,7 +6,9 @@
     - ../../vars/molecule.yml
 
   vars:
-    ansible_user: vagrant
+    ansible_user: ansible
+    ansible_password: ansible
+    ansible_become_password: ansible
 
   pre_tasks:
     - name: Update apt cache
