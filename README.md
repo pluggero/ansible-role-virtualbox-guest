@@ -2,11 +2,14 @@
 
 [![CI](https://github.com/pluggero/ansible-role-virtualbox-guest/actions/workflows/ci.yml/badge.svg)](https://github.com/pluggero/ansible-role-virtualbox-guest/actions/workflows/ci.yml) [![Ansible Galaxy downloads](https://img.shields.io/ansible/role/d/pluggero/virtualbox_guest?label=Galaxy%20downloads&logo=ansible&color=%23096598)](https://galaxy.ansible.com/ui/standalone/roles/pluggero/virtualbox_guest)
 
-An Ansible Role that installs VirtualBox Guest Additions on Linux distributions and FreeBSD.
+An Ansible Role that installs VirtualBox Guest Additions on Linux distributions, FreeBSD, and Windows.
 
 ## Requirements
 
-None.
+For Windows hosts, the `ansible.windows` collection is required:
+```bash
+ansible-galaxy collection install ansible.windows
+```
 
 ## Role Variables
 
@@ -27,6 +30,8 @@ The following methods are available:
 
 - `source`: Installs VirtualBox Guest Additions from source
 - `package`: Installs VirtualBox Guest Additions from OS native packages
+
+**Note:** Windows only supports the `source` installation method.
 
 ```yaml
 virtualbox_guest_reboot: true

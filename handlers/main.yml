@@ -5,4 +5,15 @@
     connect_timeout: 5
     reboot_timeout: 600
   become: true
-  when: virtualbox_guest_reboot
+  when:
+    - virtualbox_guest_reboot
+    - ansible_os_family != 'Windows'
+
+- name: Reboot system Windows
+  ansible.windows.win_reboot:
+    msg: "Rebooting system to apply VirtualBox Guest Additions changes..."
+    connect_timeout: 5
+    reboot_timeout: 600
+  when:
+    - virtualbox_guest_reboot
+    - ansible_os_family == 'Windows'

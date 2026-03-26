@@ -1,0 +1,32 @@
+---
+- name: Check installed VirtualBox Guest Additions version on Windows
+  block:
+    - name: Query VirtualBox Guest Additions version from registry
+      ansible.windows.win_powershell:
+        script: |
+          try {
+            $regPath = "{{ virtualbox_guest_registry_path }}"
+            if (Test-Path $regPath) {
+              $version = (Get-ItemProperty -Path $regPath -Name "Version" -ErrorAction SilentlyContinue).Version
+              if ($version) {
+                Write-Output $version
+              } else {
+                Write-Output ""
+              }
+            } else {
+              Write-Output ""
+            }
+          } catch {
+            Write-Output ""
+          }
+      register: virtualbox_guest_version_check
+      changed_when: false
+      failed_when: false
+
+    - name: Set installed version fact
+      ansible.builtin.set_fact:
+        virtualbox_guest_installed_version: "{{ virtualbox_guest_version_check.output[0] | default('') | trim }}"
+
+    - name: Debug installed VirtualBox Guest Additions version on Windows
+      ansible.builtin.debug:
+        msg: "Installed version: {{ virtualbox_guest_installed_version if virtualbox_guest_installed_version != '' else 'Not installed' }}"

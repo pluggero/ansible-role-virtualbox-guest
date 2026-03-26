@@ -1,0 +1,26 @@
+---
+# Windows has no dependency packages to install (pre-built drivers in ISO)
+virtualbox_guest_dep_pkgs: []
+
+# Package-based installation not supported on Windows
+virtualbox_guest_distro_pkgs: []
+
+# Windows installer executable name
+virtualbox_guest_installer: "VBoxWindowsAdditions.exe"
+
+# Uninstaller path
+virtualbox_guest_uninstaller: "C:\\Program Files\\Oracle\\VirtualBox Guest Additions\\uninst.exe"
+
+# Silent uninstaller arguments
+virtualbox_guest_uninstaller_args: "/S"
+
+# Registry path for version checking
+virtualbox_guest_registry_path: "HKLM:\\SOFTWARE\\Oracle\\VirtualBox Guest Additions"
+
+# Silent installation arguments for VBoxWindowsAdditions.exe
+# /S = Silent installation
+# /with_wddm = Include WDDM driver (Windows Display Driver Model) - required for modern Windows
+virtualbox_guest_installer_args: "/S /with_wddm"
+
+# Windows-specific download path (use TEMP directory)
+virtualbox_guest_download_path: "{{ ansible_env.TEMP }}\\VBoxGuestAdditions_{{ virtualbox_guest_virtualbox_version }}.iso"
