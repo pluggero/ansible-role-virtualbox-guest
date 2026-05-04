@@ -1,0 +1,96 @@
+---
+- name: Ensure VirtualBox Guest Additions is installed on Windows
+  block:
+    - name: Import installed VirtualBox Guest Additions version check
+      ansible.builtin.include_tasks: noauto_check_installed_version_Windows.yml
+      when: virtualbox_guest_installed_version is not defined
+
+    - name: Force install if the version numbers do not match
+      ansible.builtin.set_fact:
+        virtualbox_guest_force_install: true
+      when:
+        - virtualbox_guest_installed_version is defined
+        - virtualbox_guest_installed_version != ""
+        - virtualbox_guest_installed_version != virtualbox_guest_virtualbox_version
+
+    - name: Install VirtualBox Guest Additions from source on Windows
+      when: virtualbox_guest_installed_version is not defined or virtualbox_guest_installed_version == "" or virtualbox_guest_force_install
+      block:
+        - name: Uninstall current VirtualBox Guest Additions installation
+          ansible.builtin.include_tasks: noauto_uninstall.yml
+          when: virtualbox_guest_installed_version is defined and virtualbox_guest_installed_version != ""
+
+        - name: Display detected hypervisor type
+          ansible.builtin.debug:
+            msg: "Detected hypervisor: {{ virtualbox_guest_hypervisor }}. VirtualBox Guest Additions will be installed/updated on Windows."
+
+        - name: Warn when installing on non-VirtualBox hypervisor
+          ansible.builtin.debug:
+            msg: "WARNING: Detected hypervisor is '{{ virtualbox_guest_hypervisor }}', not 'virtualbox'. Installation may fail or not function correctly."
+          when: virtualbox_guest_hypervisor not in ['virtualbox', 'VirtualBox', 'unknown']
+
+        - name: Download VirtualBox Guest Additions ISO
+          ansible.windows.win_get_url:
+            url: "{{ virtualbox_guest_download_url }}"
+            dest: "{{ virtualbox_guest_download_path }}"
+          register: virtualbox_guest_download_result
+
+        - name: Mount VirtualBox Guest Additions ISO
+          ansible.windows.win_powershell:
+            script: |
+              $isoPath = "{{ virtualbox_guest_download_path }}"
+              $mountResult = Mount-DiskImage -ImagePath $isoPath -PassThru
+              $driveLetter = ($mountResult | Get-Volume).DriveLetter
+              Write-Output ($driveLetter + ":")
+          register: virtualbox_guest_mount_result
+          changed_when: true
+
+        - name: Set mount drive fact
+          ansible.builtin.set_fact:
+            virtualbox_guest_mount_drive: "{{ virtualbox_guest_mount_result.output[0] | trim }}"
+
+        - name: Set installer path fact
+          ansible.builtin.set_fact:
+            virtualbox_guest_installer_path: "{{ virtualbox_guest_mount_drive }}\\{{ virtualbox_guest_installer }}"
+
+        - name: Verify installer exists on mounted ISO
+          ansible.windows.win_stat:
+            path: "{{ virtualbox_guest_installer_path }}"
+          register: virtualbox_guest_installer_stat
+
+        - name: Assert installer exists
+          ansible.builtin.assert:
+            that:
+              - virtualbox_guest_installer_stat.stat.exists
+            fail_msg: "{{ virtualbox_guest_installer }} not found on mounted ISO"
+            success_msg: "{{ virtualbox_guest_installer }} found at {{ virtualbox_guest_installer_path }}"
+
+        - name: Install VirtualBox Guest Additions on Windows
+          ansible.windows.win_package:
+            path: "{{ virtualbox_guest_installer_path }}"
+            arguments: "{{ virtualbox_guest_installer_args }}"
+            state: present
+            product_id: "VirtualBox Guest Additions {{ virtualbox_guest_virtualbox_version }}"
+          register: virtualbox_guest_install_result
+          failed_when:
+            - virtualbox_guest_hypervisor in ['virtualbox', 'VirtualBox', 'unknown']
+            - virtualbox_guest_install_result.rc | default(0) not in [0, 3010]
+          notify: Reboot system Windows
+
+        - name: Display installation result
+          ansible.builtin.debug:
+            msg: "VirtualBox Guest Additions installation completed. Reboot required: {{ virtualbox_guest_install_result.reboot_required | default(true) }}"
+
+        - name: Unmount VirtualBox Guest Additions ISO
+          ansible.windows.win_powershell:
+            script: |
+              $isoPath = "{{ virtualbox_guest_download_path }}"
+              Dismount-DiskImage -ImagePath $isoPath
+          changed_when: true
+          failed_when: false
+
+        - name: Remove VirtualBox Guest Additions ISO
+          ansible.windows.win_file:
+            path: "{{ virtualbox_guest_download_path }}"
+            state: absent
+          when: virtualbox_guest_download_iso_cleanup

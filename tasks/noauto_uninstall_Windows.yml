@@ -1,0 +1,4 @@
+---
+- name: No package manager uninstall needed for Windows
+  ansible.builtin.debug:
+    msg: "Windows does not use a package manager for VirtualBox Guest Additions. Skipping package manager uninstall."

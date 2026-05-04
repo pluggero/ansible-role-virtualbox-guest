@@ -1,0 +1,31 @@
+---
+- name: Uninstall VirtualBox Guest Additions on Windows
+  block:
+    - name: Check if uninstaller exists
+      ansible.windows.win_stat:
+        path: "{{ virtualbox_guest_uninstaller }}"
+      register: virtualbox_guest_uninstaller_stat
+
+    - name: Uninstall VirtualBox Guest Additions
+      ansible.windows.win_package:
+        path: "{{ virtualbox_guest_uninstaller }}"
+        arguments: "{{ virtualbox_guest_uninstaller_args }}"
+        state: absent
+        product_id: "VirtualBox Guest Additions {{ virtualbox_guest_installed_version }}"
+      when: virtualbox_guest_uninstaller_stat.stat.exists
+      register: virtualbox_guest_uninstall_result
+
+    - name: Display uninstall result
+      ansible.builtin.debug:
+        msg: "VirtualBox Guest Additions uninstalled. Reboot may be required."
+      when: virtualbox_guest_uninstaller_stat.stat.exists
+
+    - name: Reboot system after uninstall if required
+      ansible.windows.win_reboot:
+        msg: "Rebooting system after VirtualBox Guest Additions uninstallation"
+        connect_timeout: 5
+        reboot_timeout: 600
+      when:
+        - virtualbox_guest_uninstaller_stat.stat.exists
+        - virtualbox_guest_reboot
+        - virtualbox_guest_uninstall_result.reboot_required | default(false)

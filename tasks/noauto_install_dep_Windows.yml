@@ -1,0 +1,20 @@
+---
+- name: Windows dependency installation
+  block:
+    - name: Display message for Windows
+      ansible.builtin.debug:
+        msg: "Windows does not require external dependencies for VirtualBox Guest Additions installation."
+
+    - name: Verify PowerShell is available
+      ansible.windows.win_powershell:
+        script: |
+          $PSVersionTable.PSVersion.Major
+      register: powershell_version
+      changed_when: false
+
+    - name: Assert PowerShell version is 5.0 or higher
+      ansible.builtin.assert:
+        that:
+          - powershell_version.output[0] | int >= 5
+        fail_msg: "PowerShell 5.0 or higher is required for Windows support"
+        success_msg: "PowerShell {{ powershell_version.output[0] }} detected"

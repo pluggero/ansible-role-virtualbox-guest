@@ -1,18 +1,8 @@
 ---
-- name: Check installed Virtualbox Guest Additions version
-  block:
-    - name: Get installed Virtualbox Guest Additions version
-      ansible.builtin.command:
-        cmd: "VBoxClient --version"
-      ignore_errors: true
-      changed_when: false
-      failed_when: false
-      register: virtualbox_guest_installed_version_cmd
+- name: Check installed Virtualbox Guest Additions version (Unix)
+  ansible.builtin.include_tasks: noauto_check_installed_version_Unix.yml
+  when: ansible_os_family != 'Windows'
 
-    - name: Extract only the version into a variable
-      ansible.builtin.set_fact:
-        virtualbox_guest_installed_version: "{{ (virtualbox_guest_installed_version_cmd.stdout | regex_search('.*?([\\d.]{2,})', '\\1'))[0] | default('') }}"
-
-    - name: Debug installed virtualbox guest additions version
-      ansible.builtin.debug:
-        var: virtualbox_guest_installed_version
+- name: Check installed Virtualbox Guest Additions version (Windows)
+  ansible.builtin.include_tasks: noauto_check_installed_version_Windows.yml
+  when: ansible_os_family == 'Windows'

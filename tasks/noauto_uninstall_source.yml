@@ -1,16 +1,8 @@
 ---
-- name: Uninstall VirtualBox Guest Additions from source
-  block:
-    - name: Uninstall current virtualbox Guest Additions version
-      ansible.builtin.command:
-        cmd: "{{ virtualbox_guest_install_dir }}/VBoxGuestAdditions-{{ virtualbox_guest_installed_version }}/uninstall.sh"
-      become: true
-      changed_when: true
+- name: Uninstall VirtualBox Guest Additions from source (Unix)
+  ansible.builtin.include_tasks: noauto_uninstall_source_Unix.yml
+  when: ansible_os_family != 'Windows'
 
-    - name: Reboot system
-      ansible.builtin.reboot:
-        msg: "Rebooting system for clean uninstallation"
-        connect_timeout: 5
-        reboot_timeout: 600
-      become: true
-      when: virtualbox_guest_reboot
+- name: Uninstall VirtualBox Guest Additions from source (Windows)
+  ansible.builtin.include_tasks: noauto_uninstall_source_Windows.yml
+  when: ansible_os_family == 'Windows'
