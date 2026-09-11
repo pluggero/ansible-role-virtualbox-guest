@@ -5,6 +5,8 @@
   when: ansible_pkg_mgr != "pkgng"
 
 - name: Install virtualbox guest additions dependencies via pkgng
+  environment:
+    IGNORE_OSVERSION: "yes"
   block:
     - name: Update pkg repository catalog
       ansible.builtin.command: pkg update
