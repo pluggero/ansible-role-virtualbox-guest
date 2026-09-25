@@ -3,7 +3,7 @@ virtualbox_guest_dep_pkgs:
   - linux-image-amd64
   - build-essential
   - dkms
-  - linux-headers-generic
+  - "linux-headers-{{ ansible_kernel }}"
 
 virtualbox_guest_distro_pkgs:
   - virtualbox-guest-additions-iso
