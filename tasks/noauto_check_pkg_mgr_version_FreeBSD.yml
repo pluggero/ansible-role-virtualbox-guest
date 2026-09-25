@@ -5,6 +5,8 @@
   when: ansible_pkg_mgr != "pkgng"
 
 - name: Checks VirtualBox Guest Additions version in package manager
+  environment:
+    IGNORE_OSVERSION: "yes"
   when: virtualbox_guest_distro_pkgs is defined and virtualbox_guest_distro_pkgs | length > 0
   block:
     - name: Update pkg repository catalog
